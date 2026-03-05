@@ -8,6 +8,7 @@ param(
     [int]$Seed = 42,
     [string]$JsonOut = "runtime_audit/market_benchmark_report.json",
     [string]$MarkdownOut = "runtime_audit/market_benchmark_table.md",
+    [int]$Threads = 1,
     [switch]$SkipTransformer,
     [switch]$Pretty,
     [switch]$OpenJson,
@@ -31,6 +32,10 @@ function Resolve-AbsolutePath {
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 Push-Location $scriptDir
 
+$oldOpenBlas = $env:OPENBLAS_NUM_THREADS
+$oldOmp = $env:OMP_NUM_THREADS
+$oldMkl = $env:MKL_NUM_THREADS
+
 try {
     if (-not (Get-Command $Python -ErrorAction SilentlyContinue)) {
         throw ("Python executable not found: {0}" -f $Python)
@@ -53,6 +58,11 @@ try {
     if ($markdownOutDir -and (-not (Test-Path $markdownOutDir))) {
         New-Item -ItemType Directory -Path $markdownOutDir -Force | Out-Null
     }
+
+    $threadCount = [Math]::Max(1, $Threads)
+    $env:OPENBLAS_NUM_THREADS = [string]$threadCount
+    $env:OMP_NUM_THREADS = [string]$threadCount
+    $env:MKL_NUM_THREADS = [string]$threadCount
 
     $args = @(
         "atheria_market_benchmarks.py",
@@ -87,7 +97,11 @@ try {
     if ($OpenMarkdown -and (Test-Path $markdownOutPath)) {
         Start-Process $markdownOutPath | Out-Null
     }
+
 }
 finally {
+    $env:OPENBLAS_NUM_THREADS = $oldOpenBlas
+    $env:OMP_NUM_THREADS = $oldOmp
+    $env:MKL_NUM_THREADS = $oldMkl
     Pop-Location
 }

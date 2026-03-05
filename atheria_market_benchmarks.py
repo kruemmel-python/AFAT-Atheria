@@ -88,13 +88,14 @@ def _crps_gaussian(mu: float, sigma: float, y: float) -> float:
     return sigma_safe * (z * (2.0 * cdf - 1.0) + 2.0 * phi - 1.0 / math.sqrt(math.pi))
 
 
-def _metrics(y_true: Sequence[float], y_pred: Sequence[float], sigma: Sequence[float], probs: Sequence[Dict[str, float]], last_values: Sequence[float], threshold: float) -> Dict[str, float]:
+def _metrics(y_true: Sequence[float], y_pred: Sequence[float], sigma: Sequence[float], probs: Sequence[Dict[str, float]], last_values: Sequence[float], threshold: float) -> Dict[str, Any]:
     n = len(y_true)
     if n == 0:
         return {
             "mae": 0.0,
             "rmse": 0.0,
-            "r2": 0.0,
+            "r2": None,
+            "r2_defined": False,
             "directional_accuracy": 0.0,
             "brier": 0.0,
             "crps_gaussian": 0.0,
@@ -106,7 +107,12 @@ def _metrics(y_true: Sequence[float], y_pred: Sequence[float], sigma: Sequence[f
     y_mean = sum(float(v) for v in y_true) / n
     ss_tot = sum((float(v) - y_mean) ** 2 for v in y_true)
     ss_res = sum(sq_errors)
-    r2 = 0.0 if ss_tot <= 1e-12 else 1.0 - (ss_res / ss_tot)
+    if ss_tot <= 1e-12:
+        r2: Optional[float] = None
+        r2_defined = False
+    else:
+        r2 = 1.0 - (ss_res / ss_tot)
+        r2_defined = True
 
     target_labels = []
     pred_labels = []
@@ -119,7 +125,8 @@ def _metrics(y_true: Sequence[float], y_pred: Sequence[float], sigma: Sequence[f
     return {
         "mae": round(float(mae), 6),
         "rmse": round(float(rmse), 6),
-        "r2": round(float(r2), 6),
+        "r2": (round(float(r2), 6) if r2 is not None else None),
+        "r2_defined": bool(r2_defined),
         "directional_accuracy": round(float(directional), 6),
         "brier": round(float(brier), 6),
         "crps_gaussian": round(float(crps), 6),
@@ -363,6 +370,8 @@ def run_benchmark(
     rows: Dict[str, Dict[str, List[Any]]] = {}
     model_order = ["atheria", "random", "arima", "garch"] + (["transformer"] if include_transformer else [])
     fold_count = 0
+    full_window_payload = projector.run(events)
+    full_window_quality = dict(full_window_payload.get("quality") or {})
 
     for fold_idx, train_end in enumerate(range(min_train_events - 1, len(events) - 1)):
         train_events = list(events[: train_end + 1])
@@ -458,6 +467,12 @@ def run_benchmark(
 
     return {
         "created_at": float(time.time()),
+        "comparison": {
+            "full_window_in_sample_r2": full_window_quality.get("r2_one_step"),
+            "full_window_in_sample_predictability": full_window_quality.get("predictability_index"),
+            "full_window_in_sample_sample_count": full_window_quality.get("sample_count"),
+            "note": "This block mirrors the direct future-projection fit on the full event window (in-sample).",
+        },
         "source": {
             "events_used": total_events,
             "market_signal_count": market_count,
@@ -508,6 +523,14 @@ def _render_markdown(report: Dict[str, Any]) -> str:
     lines.append(f"- folds: `{int(_safe_float(protocol.get('folds'), 0))}`")
     lines.append(f"- market_signal_ratio: `{_safe_float(source.get('market_signal_ratio'), 0.0):.4f}`")
     lines.append(f"- proxy_signal_ratio: `{_safe_float(source.get('proxy_signal_ratio'), 0.0):.4f}`")
+    comparison = dict(report.get("comparison") or {})
+    r2_comp = comparison.get("full_window_in_sample_r2")
+    if r2_comp is None:
+        comp_r2_text = "n/a"
+    else:
+        comp_r2_text = f"{_safe_float(r2_comp, 0.0):.6f}"
+    lines.append(f"- full_window_in_sample_r2: `{comp_r2_text}`")
+    lines.append(f"- full_window_in_sample_predictability: `{_safe_float(comparison.get('full_window_in_sample_predictability'), 0.0):.6f}`")
     diag = dict(report.get("evaluation_diagnostics") or {})
     lines.append(f"- delta_std: `{_safe_float(diag.get('delta_std'), 0.0):.6f}`")
     lines.append(f"- majority_target_class: `{str(diag.get('majority_target_class') or 'sideways')}`")
@@ -518,12 +541,17 @@ def _render_markdown(report: Dict[str, Any]) -> str:
     lines.append("| --- | ---: | ---: | ---: | ---: | ---: | ---: |")
     for item in models:
         metrics = dict(item.get("metrics") or {})
+        r2_value = metrics.get("r2")
+        if r2_value is None:
+            r2_cell = "n/a"
+        else:
+            r2_cell = f"{_safe_float(r2_value, 0.0):.4f}"
         lines.append(
-            "| {label} | {mae:.4f} | {rmse:.4f} | {r2:.4f} | {da:.4f} | {brier:.4f} | {crps:.4f} |".format(
+            "| {label} | {mae:.4f} | {rmse:.4f} | {r2} | {da:.4f} | {brier:.4f} | {crps:.4f} |".format(
                 label=str(item.get("label") or item.get("name") or "model"),
                 mae=_safe_float(metrics.get("mae"), 0.0),
                 rmse=_safe_float(metrics.get("rmse"), 0.0),
-                r2=_safe_float(metrics.get("r2"), 0.0),
+                r2=r2_cell,
                 da=_safe_float(metrics.get("directional_accuracy"), 0.0),
                 brier=_safe_float(metrics.get("brier"), 0.0),
                 crps=_safe_float(metrics.get("crps_gaussian"), 0.0),

@@ -30,6 +30,7 @@ python .\atheria_market_benchmarks.py --report-file .\daemon_runtime_live\atheri
 - `-MinTrainEvents`: initiale Trainingsfensterlaenge fuer expanding-window
 - `-ScenarioThreshold`: Schwellwert fuer `stress_up/sideways/stress_down`
 - `-SkipTransformer`: Transformer-Baseline deaktivieren (schneller Lauf)
+- `-Threads`: begrenzt BLAS/OMP-Threads (Default `1`) fuer stabile Ausfuehrung
 - `-JsonOut`: strukturierter Bericht
 - `-MarkdownOut`: tabellarische Zusammenfassung
 
