@@ -22,3 +22,10 @@ Erzwungen stoppen:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\stop_atheria_background.ps1 -ReportDir daemon_runtime -Force
 ```
 
+
+<!-- docs-sync:2026-03-05 -->
+## Dokumentations-Sync 2026-03-05
+
+- Finance-Realdatenpfad aktualisiert: Provider-Fallback yahoo -> stooq.
+- Daemon-Auditintervall aktualisiert: technisches Minimum 10s.
+- Future-Projection-Diagnostik erweitert (has_supervised_fit, Datenabdeckung, Proxy-Anteil).

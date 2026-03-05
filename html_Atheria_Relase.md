@@ -2664,3 +2664,10 @@ _Generated on 2026-03-05T13:15:59.229Z_
 
 ```
 
+
+<!-- docs-sync:2026-03-05 -->
+## Dokumentations-Sync 2026-03-05
+
+- Finance-Realdatenpfad aktualisiert: Provider-Fallback yahoo -> stooq.
+- Daemon-Auditintervall aktualisiert: technisches Minimum 10s.
+- Future-Projection-Diagnostik erweitert (has_supervised_fit, Datenabdeckung, Proxy-Anteil).

@@ -12,3 +12,10 @@
 - `MODUL_FINANCE_SENSOR_MOVE.md`
 - `MODUL_FINANCE_SENSOR_SECTOR.md`
 - `MODUL_FINANCE_SENSOR_MACRO_CALENDAR.md`
+
+<!-- docs-sync:2026-03-05 -->
+## Dokumentations-Sync 2026-03-05
+
+- Finance-Realdatenpfad aktualisiert: Provider-Fallback yahoo -> stooq.
+- Daemon-Auditintervall aktualisiert: technisches Minimum 10s.
+- Future-Projection-Diagnostik erweitert (has_supervised_fit, Datenabdeckung, Proxy-Anteil).

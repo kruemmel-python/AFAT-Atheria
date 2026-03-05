@@ -1915,13 +1915,23 @@ class MarketAlchemyAdapter:
         "BNBUSDT": "binancecoin",
         "SOLUSDT": "solana",
     }
+    _STOOQ_MAP = {
+        "^GSPC": "^spx",
+        "^GDAXI": "^dax",
+        "^VIX": "^vix",
+        "^MOVE": "^move",
+        "GC=F": "gc.f",
+        "CL=F": "cl.f",
+        "SI=F": "si.f",
+        "NG=F": "ng.f",
+    }
     _PROFILE_DEFAULTS = {
         "crypto": {
             "provider_order": ["binance", "coingecko"],
             "symbols": ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT"],
         },
         "finance": {
-            "provider_order": ["yahoo"],
+            "provider_order": ["yahoo", "stooq"],
             "symbols": ["^GSPC", "^GDAXI", "^VIX", "^MOVE", "GC=F", "CL=F", "XLU", "XLE", "XLK"],
         },
     }
@@ -2004,7 +2014,7 @@ class MarketAlchemyAdapter:
 
         raw_providers = [provider_order] if isinstance(provider_order, str) else list(provider_order or [])
         providers = {str(item).strip().lower() for item in raw_providers if str(item).strip()}
-        if "yahoo" in providers:
+        if providers.intersection({"yahoo", "stooq"}):
             return "finance"
         if providers.intersection({"binance", "coingecko"}):
             return "crypto"
@@ -2052,7 +2062,7 @@ class MarketAlchemyAdapter:
         source = [provider_order] if isinstance(provider_order, str) else (provider_order or defaults["provider_order"])
         raw = [str(name).strip().lower() for name in source if str(name).strip()]
         if profile == "finance":
-            allowed = [name for name in raw if name == "yahoo"]
+            allowed = [name for name in raw if name in {"yahoo", "stooq"}]
         else:
             allowed = [name for name in raw if name in {"binance", "coingecko"}]
         return allowed or list(defaults["provider_order"])
@@ -2443,6 +2453,78 @@ class MarketAlchemyAdapter:
             raise RuntimeError("yahoo_snapshot_empty")
         return {"provider": "yahoo", "symbols": snapshot}
 
+    def _stooq_symbol(self, symbol: str) -> str:
+        raw = str(symbol).strip().upper()
+        mapped = self._STOOQ_MAP.get(raw)
+        if mapped:
+            return str(mapped)
+        if raw.startswith("^"):
+            return raw.lower()
+        if raw.endswith("=F") and len(raw) > 2:
+            return raw[:-2].lower() + ".f"
+        if raw.isalpha() and len(raw) <= 8:
+            return raw.lower() + ".us"
+        return raw.lower()
+
+    def _fetch_stooq_snapshot(self, symbols: list[str]) -> Dict[str, Any]:
+        requested: Dict[str, str] = {}
+        for symbol in symbols:
+            canonical = str(symbol).strip().upper()
+            if not canonical:
+                continue
+            stooq_symbol = self._stooq_symbol(canonical).strip().lower()
+            if stooq_symbol:
+                requested[stooq_symbol] = canonical
+        if not requested:
+            raise RuntimeError("stooq_symbols_unsupported")
+        snapshot: Dict[str, Any] = {}
+        for stooq_symbol, canonical in requested.items():
+            params = {
+                "s": stooq_symbol,
+                "f": "sd2t2ohlcv",
+                "h": "",
+                "e": "csv",
+                "i": "d",
+            }
+            query = urllib.parse.urlencode(params, doseq=True)
+            full_url = "https://stooq.com/q/l/?" + query
+            request = urllib.request.Request(
+                full_url,
+                headers={
+                    "Accept": "text/csv,*/*;q=0.8",
+                    "User-Agent": "ATHERIA-MarketAlchemy/1.0",
+                },
+            )
+            try:
+                with urllib.request.urlopen(request, timeout=4.5) as response:
+                    payload = response.read().decode("utf-8", "ignore")
+            except Exception:
+                continue
+            rows = list(csv.DictReader(payload.splitlines()))
+            if not rows:
+                continue
+            row = rows[0]
+            if not isinstance(row, dict):
+                continue
+            close = _safe_float(row.get("Close"), 0.0)
+            if close <= 0.0:
+                continue
+            open_value = _safe_float(row.get("Open"), close)
+            if open_value > 0.0:
+                change_pct = ((close - open_value) / open_value) * 100.0
+            else:
+                change_pct = 0.0
+            snapshot[canonical] = {
+                "price": float(close),
+                "volume_total": _safe_float(row.get("Volume"), 0.0),
+                "price_change_pct": float(change_pct),
+                "bid_qty": 0.0,
+                "ask_qty": 0.0,
+            }
+        if not snapshot:
+            raise RuntimeError("stooq_snapshot_empty")
+        return {"provider": "stooq", "symbols": snapshot}
+
     def _fetch_market_snapshot(
         self,
         *,
@@ -2461,6 +2543,8 @@ class MarketAlchemyAdapter:
                     return self._fetch_coingecko_snapshot(selected_symbols)
                 if provider == "yahoo":
                     return self._fetch_yahoo_snapshot(selected_symbols)
+                if provider == "stooq":
+                    return self._fetch_stooq_snapshot(selected_symbols)
             except Exception as exc:
                 last_error = f"{provider}:{type(exc).__name__}:{exc}"
                 continue

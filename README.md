@@ -14,6 +14,17 @@ Das Repository ist für forschungsnahe, experimentelle und prototypische Anwendu
 
 ---
 
+## Stand 2026-03-05: Realdaten- und Forecast-Update
+
+- Finance-Ingest nutzt jetzt einen robusten Provider-Fallback: `yahoo -> stooq`.
+- Das minimale Daemon-Auditintervall wurde auf `10s` reduziert.
+- Future-Projection bewertet Datenqualitaet explizit:
+  - `has_supervised_fit`, `events_missing_for_supervised_fit`,
+  - `signal_mode_counts`, `market_signal_ratio`, `proxy_signal_ratio`.
+- Bei zu hoher Proxy-Quote bleibt der Nachweis bewusst `Weak`, auch wenn Einzelmetriken stark aussehen.
+
+---
+
 ## Systemarchitektur (Makroebene)
 
 ```text
@@ -150,6 +161,12 @@ source .venv/bin/activate
 powershell -NoProfile -ExecutionPolicy Bypass -File .\start_atheria_background.ps1 -ReportDir daemon_runtime -MarketProfile finance -MarketTransport poll -AuditHours 1 -OpenBrowser
 ```
 
+Schneller Event-Aufbau fuer Future-Projection-Training:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\start_atheria_background.ps1 -ReportDir daemon_runtime_live -MarketProfile finance -MarketTransport poll -MarketPollSeconds 5 -AuditHours 0.003 -OpenBrowser
+```
+
 Status prüfen:
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\status_atheria_background.ps1 -ReportDir daemon_runtime
@@ -189,6 +206,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\run_information_einstein_l
 powershell -NoProfile -ExecutionPolicy Bypass -File .\run_information_zukunftsprojektion.ps1 -ReportFile .\daemon_runtime\atheria_daemon_audit.jsonl -JsonOut .\runtime_audit\market_future_projection.json
 ```
 
+Empfohlen mit separatem Live-Reportdir:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\run_information_zukunftsprojektion.ps1 -ReportFile .\daemon_runtime_live\atheria_daemon_audit.jsonl -JsonOut .\runtime_audit\market_future_projection.json -OpenBrowser -HttpPort 8000
+```
+
 ---
 
 ## Governance, Sicherheit, Nachvollziehbarkeit
@@ -223,3 +246,10 @@ Für modulgenaue Startbefehle und Parameter siehe:
 
 ## Lizenz
 Dieses Projekt steht unter der in `LICENSE` definierten Lizenz.
+
+<!-- docs-sync:2026-03-05 -->
+## Dokumentations-Sync 2026-03-05
+
+- Finance-Realdatenpfad aktualisiert: Provider-Fallback yahoo -> stooq.
+- Daemon-Auditintervall aktualisiert: technisches Minimum 10s.
+- Future-Projection-Diagnostik erweitert (has_supervised_fit, Datenabdeckung, Proxy-Anteil).

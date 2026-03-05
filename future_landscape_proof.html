@@ -165,6 +165,7 @@
 
       function n(v, d) { var x = Number(v); return Number.isFinite(x) ? x : d; }
       function f(v, p) { return n(v, 0).toFixed(p); }
+      function fna(v, p) { var x = Number(v); return Number.isFinite(x) ? x.toFixed(p) : "n/a"; }
       function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
       function regimeColor(reg) {
         var r = String(reg || "transition");
@@ -454,17 +455,43 @@
         var quality = payload.quality || {}, land = payload.landscape || {}, top = land.topology || {}, points = Array.isArray(land.points) ? land.points : [];
         var forecast = payload.forecast || {}, series = Array.isArray(forecast.series) ? forecast.series : [];
         var verdict = String(quality.proof_verdict || "Weak");
+        var sampleCount = Math.max(0, Math.round(n(quality.sample_count, points.length)));
+        var minFitEvents = Math.max(1, Math.round(n(quality.min_events_for_supervised_fit, 8)));
+        var hasFit = !!quality.has_supervised_fit;
+        var missingFitEvents = Math.max(0, Math.round(n(quality.events_missing_for_supervised_fit, Math.max(0, minFitEvents - sampleCount))));
+        var signalStd = Number(quality.signal_std);
+        var flatSignal = !!quality.flat_signal;
+        var modeCounts = quality.signal_mode_counts || {};
+        var proxyCount = Math.max(0, Math.round(n(modeCounts.dashboard_proxy, 0)));
+        var proxyRatio = Number(quality.proxy_signal_ratio);
         if (verdict === "Verified") { badge("ok", "Verified"); el.title.textContent = "Probabilistische Zukunftsprojektion robust."; }
         else if (verdict === "Partial") { badge("warn", "Partial"); el.title.textContent = "Prognose-Landschaft teilweise stabil."; }
         else { badge("bad", "Weak"); el.title.textContent = "Noch kein robuster Zukunfts-Nachweis."; }
-        el.text.textContent = String(quality.statement || "Mehr Daten verbessern den Nachweis.");
-        el.events.textContent = String(Math.max(0, Math.round(n(quality.sample_count, points.length))));
-        el.pred.textContent = f(quality.predictability_index, 4);
-        el.r2.textContent = f(quality.r2_one_step, 4);
-        el.mae.textContent = f(quality.mae_one_step, 4);
-        el.stab.textContent = f(quality.regime_stability, 4);
-        el.exp.textContent = f(top.explained_variance, 4);
-        if (points.length > 1) { el.window.textContent = "Zeitfenster: " + f(points[0].timestamp, 3) + " -> " + f(points[points.length - 1].timestamp, 3) + " | Horizon: " + String(Math.max(1, Math.round(n(forecast.horizon_steps, series.length)))) + " x " + f(forecast.step_seconds, 1) + "s"; }
+        var statusText = String(quality.statement || "Mehr Daten verbessern den Nachweis.");
+        if (!hasFit && missingFitEvents > 0) { statusText += " Es fehlen noch " + String(missingFitEvents) + " Events fuer das Supervised-Fit."; }
+        if (flatSignal && Number.isFinite(signalStd)) { statusText += " Signal-Std: " + fna(signalStd, 6) + "."; }
+        if (proxyCount > 0) {
+          statusText += " Proxy-Signalpunkte: " + String(proxyCount);
+          if (Number.isFinite(proxyRatio)) { statusText += " (" + f(proxyRatio * 100, 1) + "%)"; }
+          statusText += ".";
+        }
+        el.text.textContent = statusText;
+        el.events.textContent = String(sampleCount);
+        el.pred.textContent = fna(quality.predictability_index, 4);
+        if (hasFit) {
+          el.r2.textContent = fna(quality.r2_one_step, 4);
+          el.mae.textContent = fna(quality.mae_one_step, 4);
+        } else {
+          el.r2.textContent = "n/a";
+          el.mae.textContent = "n/a";
+        }
+        el.stab.textContent = fna(quality.regime_stability, 4);
+        el.exp.textContent = fna(top.explained_variance, 4);
+        if (points.length > 1) {
+          var windowText = "Zeitfenster: " + f(points[0].timestamp, 3) + " -> " + f(points[points.length - 1].timestamp, 3) + " | Horizon: " + String(Math.max(1, Math.round(n(forecast.horizon_steps, series.length)))) + " x " + f(forecast.step_seconds, 1) + "s";
+          if (!hasFit) { windowText += " | Fit ab >= " + String(minFitEvents) + " Events"; }
+          el.window.textContent = windowText;
+        }
         else { el.window.textContent = "Zeitfenster: zu wenige Punkte."; }
 
         el.q.textContent = String(payload.question || "Frage nicht gesetzt.");

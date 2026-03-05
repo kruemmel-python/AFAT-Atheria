@@ -61,3 +61,10 @@ Direktlauf konservativ ohne Wrapper:
 ```powershell
 python .\atheria_information_einstein_like.py --mode conservative --report-file ..\daemon_runtime\atheria_daemon_audit.jsonl --limit 180 --spatial-dims 3 --probe-count 24 --probe-steps 180 --dt 0.045 --gravity 0.55 --path-decimation 2 --json-out .\runtime_audit\einstein_like_reconstruction_conservative.json
 ```
+
+<!-- docs-sync:2026-03-05 -->
+## Dokumentations-Sync 2026-03-05
+
+- Finance-Realdatenpfad aktualisiert: Provider-Fallback yahoo -> stooq.
+- Daemon-Auditintervall aktualisiert: technisches Minimum 10s.
+- Future-Projection-Diagnostik erweitert (has_supervised_fit, Datenabdeckung, Proxy-Anteil).

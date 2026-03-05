@@ -367,6 +367,17 @@ class MarketLandscapeFutureProjector:
         regime_stability = self._regime_stability(labels)
         transition_entropy = self._transition_entropy(labels)
         n = len(events)
+        signal_std = float(torch.std(signal).item()) if signal.numel() > 1 else 0.0
+        flat_signal = bool(signal_std <= 1e-5)
+        signal_mode_counts: Dict[str, int] = {}
+        for event in events:
+            meta = dict(event.metadata or {})
+            mode = str(meta.get("signal_mode") or "market_snapshot")
+            signal_mode_counts[mode] = int(signal_mode_counts.get(mode, 0)) + 1
+        market_signal_count = int(signal_mode_counts.get("market_snapshot", 0))
+        proxy_signal_count = int(signal_mode_counts.get("dashboard_proxy", 0))
+        market_signal_ratio = float(market_signal_count / max(1, n))
+        proxy_signal_ratio = float(proxy_signal_count / max(1, n))
         last_signal = float(signal[-1].item())
         last_delta = float(signal[-1].item() - signal[-2].item()) if signal.numel() >= 2 else 0.0
         metrics: Dict[str, float]
@@ -422,6 +433,13 @@ class MarketLandscapeFutureProjector:
             }
             proof_verdict = "Weak"
             statement = "Zu wenige Events fuer robustes Training. Das Modul liefert nur eine konservative Baseline-Projektion."
+            notes: List[str] = []
+            if flat_signal:
+                notes.append("Das Zielsignal ist nahezu konstant.")
+            if int(signal_mode_counts.get("dashboard_proxy", 0)) > 0:
+                notes.append("Marktdatenpakete fehlen; Signal wurde teilweise aus Dashboard-Proxies approximiert.")
+            if notes:
+                statement = statement + " " + " ".join(notes)
         else:
             x_train, y_train, driver_names = self._build_training(features, signal, coords, density)
             weights, metrics = self._fit_ridge(x_train, y_train)
@@ -438,13 +456,27 @@ class MarketLandscapeFutureProjector:
             scenarios = self._scenario_probabilities(last_signal, forecast)
             top_drivers = self._top_drivers(weights, driver_names, top_k=10)
 
+            if flat_signal:
+                floor = max(abs(last_delta), 1e-4)
+                metrics["mae"] = max(float(metrics["mae"]), floor)
+                metrics["rmse"] = max(float(metrics["rmse"]), floor)
+                metrics["r2"] = min(float(metrics["r2"]), 0.0)
+                metrics["residual_std"] = max(float(metrics["residual_std"]), floor * 0.75)
+
             predictability_for_gate = self._predictability_index(
                 r2=metrics["r2"],
                 residual_std=metrics["residual_std"],
                 regime_stability=regime_stability,
                 n=n,
             )
-            if n >= 40 and predictability_for_gate >= 0.67 and metrics["r2"] >= 0.3:
+            min_market_events = max(4, int(math.ceil(0.2 * float(n))))
+            if market_signal_count < min_market_events:
+                proof_verdict = "Weak"
+                statement = "Noch schwach: Zu wenig direkte Marktsnapshots fuer belastbare Prognoseguete; Ergebnis basiert ueberwiegend auf Dashboard-Proxies."
+            elif flat_signal:
+                proof_verdict = "Weak"
+                statement = "Noch schwach: Das Zielsignal ist nahezu konstant; belastbare Prognoseguete ist nicht nachweisbar."
+            elif n >= 40 and predictability_for_gate >= 0.67 and metrics["r2"] >= 0.3:
                 proof_verdict = "Verified"
                 statement = "Ja, bedingt: Die Landschaft erlaubt robuste probabilistische Kurzfristprognosen."
             elif n >= 20 and predictability_for_gate >= 0.45 and metrics["r2"] >= 0.12:
@@ -496,6 +528,8 @@ class MarketLandscapeFutureProjector:
         )
         if n < 8:
             predictability = _clamp(predictability * 0.55, 0.0, 0.35)
+        coverage_factor = _clamp(0.25 + 0.75 * market_signal_ratio, 0.25, 1.0)
+        predictability = _clamp(predictability * coverage_factor, 0.0, 1.0)
 
         now_ts = float(timestamps[-1].item())
         answer_strength = round(float(predictability), 6)
@@ -536,6 +570,16 @@ class MarketLandscapeFutureProjector:
                 "residual_std": round(float(metrics["residual_std"]), 6),
                 "regime_stability": round(float(regime_stability), 6),
                 "predictability_index": round(float(predictability), 6),
+                "has_supervised_fit": bool(n >= 8),
+                "min_events_for_supervised_fit": 8,
+                "events_missing_for_supervised_fit": max(0, 8 - n),
+                "signal_std": round(float(signal_std), 6),
+                "flat_signal": bool(flat_signal),
+                "signal_mode_counts": signal_mode_counts,
+                "market_signal_count": int(market_signal_count),
+                "proxy_signal_count": int(proxy_signal_count),
+                "market_signal_ratio": round(float(market_signal_ratio), 6),
+                "proxy_signal_ratio": round(float(proxy_signal_ratio), 6),
                 "proof_verdict": proof_verdict,
                 "statement": statement,
             },
@@ -600,12 +644,30 @@ def daemon_entry_to_event(entry: Dict[str, Any], index: int) -> MarketEvent:
         snapshot_quality,
     ]
 
-    signal = (
-        0.48 * trauma
-        + 0.24 * max(0.0, mean_vol)
-        + 0.18 * mean_abs_imb
-        + 0.10 * max(0.0, -mean_ret)
-    )
+    has_snapshot_rows = bool(rows)
+    has_market_activity = _safe_float(market.get("samples_ingested"), 0.0) > 0.0
+    has_raw_market_features = bool(returns) or bool(vols) or bool(imbs)
+    use_market_signal = bool(has_raw_market_features and (has_snapshot_rows or has_market_activity))
+
+    if use_market_signal:
+        signal = (
+            0.48 * trauma
+            + 0.24 * max(0.0, mean_vol)
+            + 0.18 * mean_abs_imb
+            + 0.10 * max(0.0, -mean_ret)
+        )
+        signal_mode = "market_snapshot"
+    else:
+        selection_pressure = _safe_float(dashboard.get("selection_pressure"), 0.34)
+        entropy_pressure = _clamp((entropic_index - 0.2) / 0.8, 0.0, 1.0)
+        temperature_pressure = _clamp((system_temp - (25.0 / 120.0)) / 0.75, 0.0, 1.0)
+        signal = (
+            0.42 * max(0.0, structural_tension)
+            + 0.24 * entropy_pressure
+            + 0.20 * temperature_pressure
+            + 0.14 * max(0.0, selection_pressure - 0.34)
+        )
+        signal_mode = "dashboard_proxy"
     signal = _clamp(signal, -0.2, 1.8)
 
     timestamp = _safe_float(entry.get("timestamp"), float(index))
@@ -616,6 +678,8 @@ def daemon_entry_to_event(entry: Dict[str, Any], index: int) -> MarketEvent:
         "mean_volatility": mean_vol,
         "mean_imbalance": mean_abs_imb,
         "symbol_count": len(rows),
+        "signal_mode": signal_mode,
+        "snapshot_rows": len(rows),
     }
     return MarketEvent(
         event_id=event_id,

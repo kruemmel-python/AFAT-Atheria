@@ -416,7 +416,7 @@ def _config_from_args(args: argparse.Namespace) -> AtheriaDaemonConfig:
         market_profile=str(args.market_profile),
         market_transport=str(args.market_transport),
         market_poll_interval_seconds=float(args.market_poll_seconds),
-        audit_interval_seconds=max(30.0, float(args.audit_hours) * 3600.0),
+        audit_interval_seconds=max(10.0, float(args.audit_hours) * 3600.0),
         anomaly_check_interval_seconds=max(2.0, float(args.anomaly_seconds)),
         anomaly_cooldown_seconds=max(30.0, float(args.anomaly_cooldown_minutes) * 60.0),
         max_runtime_seconds=None if args.max_runtime_seconds is None else max(1.0, float(args.max_runtime_seconds)),
