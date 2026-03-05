@@ -76,12 +76,14 @@ ATHERIA Daemon (Orchestrierung, Audit-Events, Laufzeitsteuerung)
 - **`atheria_spacetime_reconstruction.py`** – Raumzeit-Projektionsrekonstruktion aus Audit-Information.
 - **`atheria_information_einstein_like.py`** – Einstein-like Effektgeometrie mit Deflektions-/Feldanalogie.
 - **`atheria_market_future_projection.py`** – Probabilistische Kurzfrist-Marktzukunftsprojektion.
+- **`atheria_market_benchmarks.py`** – Rolling-Benchmark gegen ARIMA/GARCH/Transformer/Random-Baselines.
 
 ### Wrapper, Dokumentation und Artefakte
 - PowerShell-Wrapper:
   - `run_information_raumgeometrie.ps1`
   - `run_information_einstein_like.ps1`
   - `run_information_zukunftsprojektion.ps1`
+  - `run_market_benchmarks.ps1`
 - Modul-Dokumentation:
   - `MODUL_*.md` (spezifische Start- und Bedienhinweise)
   - `MODUL_INDEX.md` (Index)
@@ -212,6 +214,11 @@ Empfohlen mit separatem Live-Reportdir:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\run_information_zukunftsprojektion.ps1 -ReportFile .\daemon_runtime_live\atheria_daemon_audit.jsonl -JsonOut .\runtime_audit\market_future_projection.json -OpenBrowser -HttpPort 8000
 ```
 
+### 4) Baseline-Benchmarks (ARIMA/GARCH/Transformer/Random)
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\run_market_benchmarks.ps1 -ReportFile .\daemon_runtime_live\atheria_daemon_audit.jsonl -JsonOut .\runtime_audit\market_benchmark_report.json -MarkdownOut .\runtime_audit\market_benchmark_table.md
+```
+
 ---
 
 ## Governance, Sicherheit, Nachvollziehbarkeit
@@ -238,6 +245,7 @@ Für modulgenaue Startbefehle und Parameter siehe:
 - `MODUL_INFORMATION_RAUMGEOMETRIE.md`
 - `MODUL_INFORMATION_EINSTEIN_LIKE.md`
 - `MODUL_INFORMATION_ZUKUNFTSPROJEKTION.md`
+- `MODUL_MARKET_BENCHMARKS.md`
 - `MODUL_FINANCE_SENSOR_MOVE.md`
 - `MODUL_FINANCE_SENSOR_SECTOR.md`
 - `MODUL_FINANCE_SENSOR_MACRO_CALENDAR.md`

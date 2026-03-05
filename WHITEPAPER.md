@@ -321,6 +321,36 @@ Operational acceptance rule:
 
 - "Verified" evidence should require outperforming random and classical baselines (ARIMA/GARCH) on multiple contiguous windows with stable calibration, not only a single high-variance segment.
 
+### 6.5.1 Current benchmark snapshot (2026-03-05)
+
+Execution command:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\run_market_benchmarks.ps1 -ReportFile .\daemon_runtime_live\atheria_daemon_audit.jsonl -JsonOut .\runtime_audit\market_benchmark_report.json -MarkdownOut .\runtime_audit\market_benchmark_table.md
+```
+
+Snapshot metadata (run at 2026-03-05 18:48:44 UTC):
+
+- events used: 119
+- folds (expanding one-step): 95
+- market signal ratio: 0.9832
+- proxy signal ratio: 0.0168
+
+Measured metrics:
+
+| Model | MAE | RMSE | R2 | Direction Acc | Brier | CRPS |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| ATHERIA field model | 0.0025 | 0.0043 | 0.0000 | 1.0000 | 0.0373 | 0.0063 |
+| Random baseline | 0.0283 | 0.0341 | 0.0000 | 0.5789 | 0.1943 | 0.0193 |
+| ARIMA(1,1,0) baseline | 0.0012 | 0.0014 | 0.0000 | 1.0000 | 0.0729 | 0.0080 |
+| GARCH(1,1) baseline | 0.0013 | 0.0017 | 0.0000 | 1.0000 | 0.0234 | 0.0054 |
+| Transformer baseline | 0.0008 | 0.0009 | 0.0000 | 1.0000 | 0.0000 | 0.0008 |
+
+Interpretation note:
+
+- This run is class-imbalanced (`majority_target_class=sideways`, ratio=1.0, `delta_std=0.0` on benchmark folds).  
+  Therefore, this table is a pipeline validation snapshot, not yet a strong scientific performance claim.
+
 ### 6.6 Research and production implications
 
 ATHERIA provides a bridge between information theory, causal flow modeling, geometric reconstruction, and conservative forecasting.  
