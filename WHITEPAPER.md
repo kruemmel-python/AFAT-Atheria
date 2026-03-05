@@ -350,6 +350,8 @@ Interpretation note:
 
 - This run is class-imbalanced (`majority_target_class=sideways`, ratio=1.0, `delta_std=0.0` on benchmark folds).  
   Therefore, this table is a pipeline validation snapshot, not yet a strong scientific performance claim.
+- ATHERIA is intentionally tied to real market snapshots and conservative quality gates. If the live stream is sparse or shows near-zero variation, ATHERIA does not inject synthetic movement just to improve benchmark rank.
+- For that reason, single short windows can understate ATHERIA's relative performance. A robust comparison requires longer runtime across multiple regimes (calm, transition, stress) with sustained real-market coverage.
 - In zero-variance target windows, \(R^2\) is reported as `n/a` (undefined), not as `0.0000`.
 
 ### 6.6 Research and production implications
