@@ -1,0 +1,949 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atheria Einstein-like Proof</title>
+  <style>
+    :root {
+      --bg: #ece8de;
+      --paper: #fffaf2;
+      --ink: #15232d;
+      --muted: #63707a;
+      --line: rgba(21, 35, 45, 0.14);
+      --ok: #20774a;
+      --warn: #ad6a1e;
+      --bad: #9d2f2f;
+      --accent: #0c5b72;
+      --shadow: 0 14px 30px rgba(21, 35, 45, 0.14);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: Georgia, "Palatino Linotype", "Book Antiqua", serif;
+      background:
+        radial-gradient(circle at 13% 10%, rgba(198, 154, 84, 0.16), transparent 26%),
+        radial-gradient(circle at 84% 8%, rgba(18, 114, 141, 0.13), transparent 22%),
+        linear-gradient(180deg, #ebe4d5, var(--bg));
+    }
+
+    .shell {
+      width: min(1220px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 54px;
+    }
+
+    .hero {
+      border-radius: 24px;
+      padding: 24px;
+      margin-bottom: 16px;
+      color: #f6f2e8;
+      background: linear-gradient(128deg, rgba(17, 30, 42, 0.96), rgba(12, 91, 114, 0.92) 56%, rgba(173, 106, 30, 0.87));
+      box-shadow: var(--shadow);
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(246, 242, 232, 0.26);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.74rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      color: rgba(246, 242, 232, 0.84);
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: clamp(1.8rem, 4.2vw, 3.2rem);
+      line-height: 0.95;
+      margin-bottom: 10px;
+      max-width: 14ch;
+    }
+    .hero p {
+      line-height: 1.52;
+      color: rgba(246, 242, 232, 0.9);
+      max-width: 78ch;
+    }
+    code {
+      font-family: Consolas, "Courier New", monospace;
+      background: rgba(255, 255, 255, 0.16);
+      border-radius: 6px;
+      padding: 1px 6px;
+      font-size: 0.9em;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 16px;
+    }
+    .stack {
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+    .panel {
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      box-shadow: 0 8px 18px rgba(21, 35, 45, 0.06);
+      padding: 16px;
+    }
+    .panel h2 {
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+    }
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      border: 1px solid var(--line);
+      background: #fffdf8;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 6px 11px;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .btn:hover {
+      border-color: rgba(12, 91, 114, 0.45);
+      background: rgba(12, 91, 114, 0.08);
+    }
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      user-select: none;
+    }
+
+    .proof {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fffdf7;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 110px;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .badge.ok { color: var(--ok); background: rgba(32, 119, 74, 0.14); }
+    .badge.warn { color: var(--warn); background: rgba(173, 106, 30, 0.14); }
+    .badge.bad { color: var(--bad); background: rgba(157, 47, 47, 0.14); }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+    }
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fffdf8;
+      padding: 10px;
+    }
+    .metric .label {
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 5px;
+    }
+    .metric .value {
+      color: var(--accent);
+      font-size: 1.16rem;
+      font-weight: 700;
+    }
+    .meta {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.48;
+    }
+
+    .canvas-wrap {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px;
+      background:
+        radial-gradient(circle at 18% 20%, rgba(57, 201, 255, 0.09), transparent 34%),
+        radial-gradient(circle at 82% 82%, rgba(109, 240, 191, 0.11), transparent 28%),
+        linear-gradient(180deg, rgba(6, 30, 46, 0.9), rgba(9, 42, 56, 0.88));
+      position: relative;
+    }
+    #proof-canvas {
+      width: 100%;
+      height: 420px;
+      display: block;
+      border-radius: 10px;
+      background: transparent;
+      touch-action: none;
+      cursor: grab;
+    }
+    #proof-canvas.dragging { cursor: grabbing; }
+
+    .tip {
+      position: fixed;
+      z-index: 20;
+      pointer-events: none;
+      display: none;
+      max-width: 340px;
+      padding: 7px 9px;
+      border-radius: 9px;
+      background: rgba(17, 33, 45, 0.92);
+      color: #f1f5f7;
+      font-size: 0.78rem;
+      line-height: 1.35;
+      border: 1px solid rgba(241, 245, 247, 0.2);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.26);
+    }
+
+    .list {
+      display: grid;
+      gap: 8px;
+      max-height: 300px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+    .item {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fffdf8;
+      padding: 9px 10px;
+      font-size: 0.9rem;
+      line-height: 1.42;
+    }
+    .item small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .footer {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.55;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255, 252, 246, 0.76);
+    }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      #proof-canvas { height: 300px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div class="eyebrow">Information -> Effective Geometry</div>
+      <h1>Einstein-like Rekonstruktion: Proof-Dashboard</h1>
+      <p>
+        Die Ansicht verarbeitet <code>atheria_information_einstein_like.py</code> und zeigt,
+        ob aus Informationsdynamik gravitationsähnliche Effekte (Potential, Deflektion, Lensing) entstehen.
+      </p>
+    </section>
+
+    <section class="layout">
+      <div class="stack">
+        <section class="panel">
+          <h2>Beweisstatus</h2>
+          <div class="proof">
+            <div>
+              <strong id="proof-title">Warte auf Einstein-like Daten...</strong>
+              <div class="meta" id="proof-text">
+                Erwartete Datei: <code id="json-path">runtime_audit/einstein_like_reconstruction.json</code>
+              </div>
+            </div>
+            <span class="badge warn" id="proof-badge">Pending</span>
+          </div>
+
+          <div class="metrics">
+            <article class="metric">
+              <div class="label">Events</div>
+              <div class="value" id="m-events">-</div>
+            </article>
+            <article class="metric">
+              <div class="label">Stress</div>
+              <div class="value" id="m-stress">-</div>
+            </article>
+            <article class="metric">
+              <div class="label">Source-Phi Corr</div>
+              <div class="value" id="m-corr">-</div>
+            </article>
+            <article class="metric">
+              <div class="label">Deflection</div>
+              <div class="value" id="m-deflect">-</div>
+            </article>
+            <article class="metric">
+              <div class="label">Lensing Ratio</div>
+              <div class="value" id="m-lens">-</div>
+            </article>
+            <article class="metric">
+              <div class="label">g00 Range</div>
+              <div class="value" id="m-g00">-</div>
+            </article>
+          </div>
+          <div class="meta" id="window-line"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Holo-Raumzeit (3D)</h2>
+            <div class="controls">
+              <button class="btn" id="btn-auto" type="button">Auto-Rotate: On</button>
+              <button class="btn" id="btn-reset" type="button">Reset View</button>
+              <label class="toggle">
+                <input id="toggle-paths" type="checkbox" checked>
+                Probe-Pfade
+              </label>
+            </div>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="proof-canvas" width="760" height="420" aria-label="Einstein-like Holoansicht"></canvas>
+          </div>
+          <div class="meta">
+            Ziehen fuer Rotation, Mausrad fuer Zoom, Hover auf Ereignisse fuer Details.
+          </div>
+        </section>
+      </div>
+
+      <aside class="stack">
+        <section class="panel">
+          <h2>Invarianten</h2>
+          <div class="list" id="inv-list">
+            <article class="item">Keine Invarianten geladen.</article>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Top-Attractors</h2>
+          <div class="list" id="attr-list">
+            <article class="item">Keine Attractors geladen.</article>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Probe-Spektrum</h2>
+          <div class="list" id="probe-list">
+            <article class="item">Keine Probes geladen.</article>
+          </div>
+        </section>
+      </aside>
+    </section>
+
+    <section class="footer">
+      Startsequenz:
+      <code>powershell -NoProfile -ExecutionPolicy Bypass -File .\run_information_einstein_like.ps1 -ReportFile ..\daemon_runtime\atheria_daemon_audit.jsonl -JsonOut .\runtime_audit\einstein_like_reconstruction.json</code>
+    </section>
+  </main>
+
+  <div class="tip" id="plot-tip"></div>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search || "");
+      var jsonPath = String(params.get("json") || "runtime_audit/einstein_like_reconstruction.json").trim();
+
+      var proofTitle = document.getElementById("proof-title");
+      var proofText = document.getElementById("proof-text");
+      var proofBadge = document.getElementById("proof-badge");
+      var jsonPathNode = document.getElementById("json-path");
+      var mEvents = document.getElementById("m-events");
+      var mStress = document.getElementById("m-stress");
+      var mCorr = document.getElementById("m-corr");
+      var mDeflect = document.getElementById("m-deflect");
+      var mLens = document.getElementById("m-lens");
+      var mG00 = document.getElementById("m-g00");
+      var windowLine = document.getElementById("window-line");
+      var invList = document.getElementById("inv-list");
+      var attrList = document.getElementById("attr-list");
+      var probeList = document.getElementById("probe-list");
+      var canvas = document.getElementById("proof-canvas");
+      var tip = document.getElementById("plot-tip");
+      var btnAuto = document.getElementById("btn-auto");
+      var btnReset = document.getElementById("btn-reset");
+      var togglePaths = document.getElementById("toggle-paths");
+      var ctx = canvas ? canvas.getContext("2d") : null;
+
+      var view = {
+        yaw: 0.55,
+        pitch: -0.35,
+        distance: 3.15,
+        autoRotate: true,
+        dragging: false,
+        dragX: 0,
+        dragY: 0,
+        hoverIndex: -1,
+        projected: [],
+        lastTs: 0,
+        showPaths: true
+      };
+      var scene = {
+        points: [],
+        paths: [],
+        pathMeta: [],
+        hasData: false
+      };
+      var animHandle = 0;
+
+      if (jsonPathNode) {
+        jsonPathNode.textContent = jsonPath;
+      }
+
+      function fmt(value, digits) {
+        var n = Number(value);
+        return Number.isFinite(n) ? n.toFixed(digits) : "-";
+      }
+
+      function clamp(value, low, high) {
+        return Math.min(high, Math.max(low, value));
+      }
+
+      function setBadge(tone, text) {
+        proofBadge.className = "badge " + tone;
+        proofBadge.textContent = text;
+      }
+
+      function placeTip(clientX, clientY) {
+        var offset = 12;
+        var left = clientX + offset;
+        var top = clientY + offset;
+        var maxLeft = window.innerWidth - tip.offsetWidth - 8;
+        var maxTop = window.innerHeight - tip.offsetHeight - 8;
+        tip.style.left = String(Math.max(8, Math.min(maxLeft, left))) + "px";
+        tip.style.top = String(Math.max(8, Math.min(maxTop, top))) + "px";
+      }
+
+      function showTip(text, clientX, clientY) {
+        tip.textContent = text;
+        tip.style.display = "block";
+        placeTip(clientX, clientY);
+      }
+
+      function hideTip() {
+        tip.style.display = "none";
+      }
+
+      function fitCanvas() {
+        if (!canvas || !ctx) {
+          return { w: 0, h: 0 };
+        }
+        var dpr = Math.max(1, window.devicePixelRatio || 1);
+        var w = Math.max(1, Math.round(canvas.clientWidth || 760));
+        var h = Math.max(1, Math.round(canvas.clientHeight || 420));
+        var rw = Math.round(w * dpr);
+        var rh = Math.round(h * dpr);
+        if (canvas.width !== rw || canvas.height !== rh) {
+          canvas.width = rw;
+          canvas.height = rh;
+        }
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        return { w: w, h: h };
+      }
+
+      function project(point, w, h) {
+        var cosY = Math.cos(view.yaw);
+        var sinY = Math.sin(view.yaw);
+        var cosX = Math.cos(view.pitch);
+        var sinX = Math.sin(view.pitch);
+
+        var rx = point.x * cosY - point.z * sinY;
+        var rz = point.x * sinY + point.z * cosY;
+        var ry = point.y * cosX - rz * sinX;
+        var rz2 = point.y * sinX + rz * cosX;
+
+        var depth = clamp(view.distance - rz2, 0.3, 40);
+        var focal = Math.min(w, h) * 0.66;
+        var scale = focal / depth;
+        return {
+          x: w * 0.5 + rx * scale,
+          y: h * 0.5 - ry * scale,
+          z: rz2,
+          depth: depth
+        };
+      }
+
+      function prepareScene(payload) {
+        var points = Array.isArray(payload.points) ? payload.points : [];
+        var probes = Array.isArray(payload.probes) ? payload.probes : [];
+        if (!points.length) {
+          scene.points = [];
+          scene.paths = [];
+          scene.pathMeta = [];
+          scene.hasData = false;
+          return;
+        }
+
+        var all = [];
+        for (var i = 0; i < points.length; i += 1) {
+          var p = points[i];
+          var s = Array.isArray(p.spatial) ? p.spatial : [0, 0, 0];
+          all.push([Number(s[0]) || 0, Number(s[1]) || 0, Number(s[2]) || 0]);
+        }
+        for (var j = 0; j < probes.length; j += 1) {
+          var path = Array.isArray(probes[j].path) ? probes[j].path : [];
+          for (var k = 0; k < path.length; k += 1) {
+            all.push([
+              Number(path[k][0]) || 0,
+              Number(path[k][1]) || 0,
+              Number(path[k][2]) || 0
+            ]);
+          }
+        }
+
+        var maxR = 0.0001;
+        for (var t = 0; t < all.length; t += 1) {
+          var row = all[t];
+          var r = Math.sqrt(row[0] * row[0] + row[1] * row[1] + row[2] * row[2]);
+          if (r > maxR) {
+            maxR = r;
+          }
+        }
+        var scale = 1 / maxR;
+
+        scene.points = points.map(function (p) {
+          var s = Array.isArray(p.spatial) ? p.spatial : [0, 0, 0];
+          return {
+            eventId: String(p.event_id || "event"),
+            x: (Number(s[0]) || 0) * scale,
+            y: (Number(s[1]) || 0) * scale,
+            z: (Number(s[2]) || 0) * scale,
+            mass: Number(p.mass) || 0,
+            potential: Number(p.potential) || 0,
+            entropy: Number(p.entropy) || 0,
+            curvature: Number(p.curvature_proxy) || 0
+          };
+        });
+
+        scene.paths = probes.map(function (probe) {
+          var path = Array.isArray(probe.path) ? probe.path : [];
+          return path.map(function (row) {
+            return {
+              x: (Number(row[0]) || 0) * scale,
+              y: (Number(row[1]) || 0) * scale,
+              z: (Number(row[2]) || 0) * scale
+            };
+          });
+        });
+        scene.pathMeta = probes.map(function (probe) {
+          return {
+            probeId: String(probe.probe_id || "probe"),
+            deflection: Number(probe.deflection_deg) || 0
+          };
+        });
+        scene.hasData = scene.points.length > 0;
+      }
+
+      function drawAxes(w, h) {
+        var axes = [
+          { x: 1, y: 0, z: 0, color: "rgba(255, 143, 123, 0.72)" },
+          { x: 0, y: 1, z: 0, color: "rgba(132, 232, 169, 0.72)" },
+          { x: 0, y: 0, z: 1, color: "rgba(124, 197, 255, 0.72)" }
+        ];
+        for (var i = 0; i < axes.length; i += 1) {
+          var origin = project({ x: 0, y: 0, z: 0 }, w, h);
+          var tipPoint = project(axes[i], w, h);
+          ctx.beginPath();
+          ctx.strokeStyle = axes[i].color;
+          ctx.lineWidth = 1.2;
+          ctx.moveTo(origin.x, origin.y);
+          ctx.lineTo(tipPoint.x, tipPoint.y);
+          ctx.stroke();
+        }
+      }
+
+      function drawScene() {
+        if (!ctx || !canvas) {
+          return;
+        }
+        var size = fitCanvas();
+        var w = size.w;
+        var h = size.h;
+        ctx.clearRect(0, 0, w, h);
+
+        drawAxes(w, h);
+        if (!scene.hasData) {
+          view.projected = [];
+          return;
+        }
+
+        if (view.showPaths) {
+          for (var i = 0; i < scene.paths.length; i += 1) {
+            var path = scene.paths[i];
+            if (path.length < 2) {
+              continue;
+            }
+            var deflection = scene.pathMeta[i] ? scene.pathMeta[i].deflection : 0;
+            var hue = clamp(188 - deflection * 7, 12, 200);
+            ctx.beginPath();
+            for (var j = 0; j < path.length; j += 1) {
+              var proj = project(path[j], w, h);
+              if (j === 0) {
+                ctx.moveTo(proj.x, proj.y);
+              } else {
+                ctx.lineTo(proj.x, proj.y);
+              }
+            }
+            ctx.strokeStyle = "hsla(" + hue.toFixed(0) + ", 82%, 64%, 0.25)";
+            ctx.lineWidth = 1.0;
+            ctx.stroke();
+          }
+        }
+
+        var projected = scene.points.map(function (p, index) {
+          var proj = project(p, w, h);
+          return {
+            index: index,
+            eventId: p.eventId,
+            mass: p.mass,
+            potential: p.potential,
+            entropy: p.entropy,
+            curvature: p.curvature,
+            x: proj.x,
+            y: proj.y,
+            depth: proj.depth
+          };
+        });
+        projected.sort(function (a, b) { return b.depth - a.depth; });
+
+        for (var k = 0; k < projected.length; k += 1) {
+          var point = projected[k];
+          var hover = point.index === view.hoverIndex;
+          var radius = clamp((1.08 / point.depth) * 8.5, 2.0, 8.8) + (hover ? 1.8 : 0);
+          var alpha = clamp(1.02 - point.depth * 0.21, 0.25, 0.95);
+          var massGlow = clamp(point.mass * 100, 0, 100);
+          var hue = clamp(205 - massGlow * 1.35, 24, 205);
+
+          ctx.beginPath();
+          ctx.fillStyle = hover
+            ? "rgba(255, 215, 141, 0.96)"
+            : "hsla(" + hue.toFixed(0) + ", 82%, 62%, " + alpha.toFixed(3) + ")";
+          ctx.strokeStyle = hover ? "rgba(255, 249, 236, 0.95)" : "rgba(6, 30, 44, 0.74)";
+          ctx.lineWidth = hover ? 2.1 : 1.0;
+          ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        }
+
+        view.projected = projected;
+      }
+
+      function renderInvariants(invariants) {
+        if (!Array.isArray(invariants) || invariants.length === 0) {
+          invList.innerHTML = "<article class='item'>Keine Invarianten geladen.</article>";
+          return;
+        }
+        invList.innerHTML = invariants.map(function (inv) {
+          var status = String(inv.status || "weak");
+          var tone = status === "ok" ? "ok" : "warn";
+          return (
+            "<article class='item'><strong>" + String(inv.name || "Invariant") + "</strong>" +
+            "<small><span class='badge " + tone + "' style='min-width:0;padding:2px 8px;margin-right:6px;'>" + status + "</span>" +
+            " " + String(inv.formula || "") + " = " + fmt(inv.value, 4) + "</small></article>"
+          );
+        }).join("");
+      }
+
+      function renderAttractors(items) {
+        if (!Array.isArray(items) || items.length === 0) {
+          attrList.innerHTML = "<article class='item'>Keine Attractors geladen.</article>";
+          return;
+        }
+        attrList.innerHTML = items.map(function (item, index) {
+          return (
+            "<article class='item'><strong>#" + (index + 1) + " " + String(item.event_id || "?") + "</strong>" +
+            "<small>mass=" + fmt(item.mass, 4) + " | potential=" + fmt(item.potential, 4) +
+            " | entropy=" + fmt(item.entropy, 4) + "</small></article>"
+          );
+        }).join("");
+      }
+
+      function renderProbes(probes) {
+        if (!Array.isArray(probes) || probes.length === 0) {
+          probeList.innerHTML = "<article class='item'>Keine Probes geladen.</article>";
+          return;
+        }
+        var sorted = probes.slice().sort(function (a, b) {
+          return (Number(b.deflection_deg) || 0) - (Number(a.deflection_deg) || 0);
+        });
+        probeList.innerHTML = sorted.slice(0, 20).map(function (probe) {
+          return (
+            "<article class='item'><strong>" + String(probe.probe_id || "probe") + "</strong>" +
+            "<small>delta=" + fmt(probe.deflection_deg, 3) + " deg | arc=" + fmt(probe.arc_length, 3) +
+            " | z~" + fmt(probe.redshift_proxy, 3) + "</small></article>"
+          );
+        }).join("");
+      }
+
+      function renderStatus(payload) {
+        var quality = payload.quality || {};
+        var fields = payload.field_summary || {};
+        var points = Array.isArray(payload.points) ? payload.points : [];
+        var modeName = String(quality.mode || fields.mode || "standard");
+        var coupling = Number(quality.coupling_strength);
+        if (!Number.isFinite(coupling)) {
+          coupling = Number(fields.coupling_strength);
+        }
+        var autoTuneUsed = Boolean(quality.auto_tune_used || fields.auto_tune_used);
+        var autoTrials = Number(quality.auto_tune_trials || fields.auto_tune_trials || 0);
+        var verdict = String(quality.verdict || "Weak");
+        if (quality.verified === true || verdict === "Verified") {
+          setBadge("ok", "Verified");
+          proofTitle.textContent = "Einstein-like Effekt sichtbar: Informationsfeld erzeugt kohärente Deflektion.";
+          proofText.textContent = "Quell-Potential-Kopplung, Lensing und Geodätik liegen im Zielbereich.";
+        } else if (verdict === "Partial") {
+          setBadge("warn", "Partial");
+          proofTitle.textContent = "Einstein-like Effekt teilweise stabil.";
+          proofText.textContent = "Geometrie reagiert bereits, aber mindestens ein Qualitätskriterium bleibt unter Zielwert.";
+        } else {
+          setBadge("bad", "Weak");
+          proofTitle.textContent = "Noch kein robuster Einstein-like Nachweis.";
+          proofText.textContent = "Mehr Events oder längere Probe-Integration erhöhen die Aussagekraft.";
+        }
+
+        mEvents.textContent = String(quality.event_count || points.length || 0);
+        mStress.textContent = fmt(quality.stress, 4);
+        mCorr.textContent = fmt(quality.mass_potential_correlation, 4);
+        mDeflect.textContent = fmt(quality.mean_deflection_deg, 3) + " deg";
+        mLens.textContent = fmt(quality.lensing_ratio, 3) + " (> " + fmt(quality.lensing_threshold_deg, 1) + " deg)";
+        mG00.textContent = fmt(fields.g00_min, 3) + " .. " + fmt(fields.g00_max, 3);
+
+        if (points.length > 1) {
+          windowLine.textContent =
+            "Zeitfenster: " + fmt(points[0].timestamp, 3) + " -> " + fmt(points[points.length - 1].timestamp, 3) +
+            " | Modus: " + modeName +
+            " | Kopplung: " + fmt(coupling, 3) +
+            (autoTuneUsed ? (" | AutoTune: on (" + String(Math.max(0, Math.round(autoTrials))) + " trials)") : "");
+        } else {
+          windowLine.textContent =
+            "Zeitfenster: zu wenige Punkte. | Modus: " + modeName + " | Kopplung: " + fmt(coupling, 3) +
+            (autoTuneUsed ? (" | AutoTune: on (" + String(Math.max(0, Math.round(autoTrials))) + " trials)") : "");
+        }
+      }
+
+      function pickPoint(clientX, clientY) {
+        if (!canvas || !view.projected.length) {
+          return null;
+        }
+        var rect = canvas.getBoundingClientRect();
+        var x = clientX - rect.left;
+        var y = clientY - rect.top;
+        var nearest = null;
+        var best = 14;
+        for (var i = 0; i < view.projected.length; i += 1) {
+          var p = view.projected[i];
+          var dx = p.x - x;
+          var dy = p.y - y;
+          var d = Math.sqrt(dx * dx + dy * dy);
+          if (d < best) {
+            best = d;
+            nearest = p;
+          }
+        }
+        return nearest;
+      }
+
+      function setAutoButton() {
+        btnAuto.textContent = "Auto-Rotate: " + (view.autoRotate ? "On" : "Off");
+      }
+
+      function bindInteractions() {
+        if (!canvas || canvas.getAttribute("data-bound") === "1") {
+          return;
+        }
+        canvas.setAttribute("data-bound", "1");
+        setAutoButton();
+        view.showPaths = Boolean(togglePaths && togglePaths.checked);
+
+        btnAuto.addEventListener("click", function () {
+          view.autoRotate = !view.autoRotate;
+          setAutoButton();
+        });
+        btnReset.addEventListener("click", function () {
+          view.yaw = 0.55;
+          view.pitch = -0.35;
+          view.distance = 3.15;
+          view.hoverIndex = -1;
+          drawScene();
+        });
+        if (togglePaths) {
+          togglePaths.addEventListener("change", function () {
+            view.showPaths = Boolean(togglePaths.checked);
+            drawScene();
+          });
+        }
+
+        canvas.addEventListener("wheel", function (event) {
+          event.preventDefault();
+          var factor = event.deltaY < 0 ? 0.9 : 1.1;
+          view.distance = clamp(view.distance * factor, 1.4, 10.0);
+          drawScene();
+        }, { passive: false });
+
+        canvas.addEventListener("pointerdown", function (event) {
+          if (event.pointerType === "mouse" && event.button !== 0) {
+            return;
+          }
+          view.dragging = true;
+          view.dragX = event.clientX;
+          view.dragY = event.clientY;
+          canvas.classList.add("dragging");
+          if (canvas.setPointerCapture) {
+            canvas.setPointerCapture(event.pointerId);
+          }
+        });
+
+        canvas.addEventListener("pointermove", function (event) {
+          if (view.dragging) {
+            var dx = event.clientX - view.dragX;
+            var dy = event.clientY - view.dragY;
+            view.dragX = event.clientX;
+            view.dragY = event.clientY;
+            view.yaw += dx * 0.009;
+            view.pitch = clamp(view.pitch + dy * 0.007, -1.38, 1.38);
+            drawScene();
+            return;
+          }
+
+          var hit = pickPoint(event.clientX, event.clientY);
+          view.hoverIndex = hit ? hit.index : -1;
+          if (hit) {
+            showTip(
+              hit.eventId +
+                " | mass=" + fmt(hit.mass, 4) +
+                " | potential=" + fmt(hit.potential, 4) +
+                " | entropy=" + fmt(hit.entropy, 4),
+              event.clientX,
+              event.clientY
+            );
+          } else {
+            hideTip();
+          }
+          drawScene();
+        });
+
+        function stopDrag(event) {
+          if (!view.dragging) {
+            return;
+          }
+          view.dragging = false;
+          canvas.classList.remove("dragging");
+          if (canvas.releasePointerCapture) {
+            try {
+              canvas.releasePointerCapture(event.pointerId);
+            } catch (_err) {
+              // noop
+            }
+          }
+        }
+
+        canvas.addEventListener("pointerup", stopDrag);
+        canvas.addEventListener("pointercancel", stopDrag);
+        canvas.addEventListener("pointerleave", function () {
+          if (!view.dragging) {
+            view.hoverIndex = -1;
+            hideTip();
+            drawScene();
+          }
+        });
+        window.addEventListener("resize", function () {
+          drawScene();
+        });
+      }
+
+      function tick(ts) {
+        if (!view.lastTs) {
+          view.lastTs = ts;
+        }
+        var dt = (ts - view.lastTs) / 1000;
+        view.lastTs = ts;
+        if (view.autoRotate && !view.dragging) {
+          view.yaw += dt * 0.38;
+        }
+        drawScene();
+        animHandle = window.requestAnimationFrame(tick);
+      }
+
+      function ensureLoop() {
+        if (!animHandle) {
+          animHandle = window.requestAnimationFrame(tick);
+        }
+      }
+
+      bindInteractions();
+
+      fetch(jsonPath, { cache: "no-store" })
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error("HTTP " + response.status);
+          }
+          return response.json();
+        })
+        .then(function (payload) {
+          payload = payload || {};
+          renderStatus(payload);
+          renderInvariants(payload.invariants || []);
+          renderAttractors(payload.attractors || []);
+          renderProbes(payload.probes || []);
+          prepareScene(payload);
+          drawScene();
+          ensureLoop();
+        })
+        .catch(function () {
+          setBadge("warn", "Missing");
+          proofTitle.textContent = "Rekonstruktionsdatei nicht gefunden.";
+          proofText.textContent = "Fuehre run_information_einstein_like.ps1 aus und lade die Seite danach neu.";
+          windowLine.textContent = "Zeitfenster: keine Daten.";
+          mEvents.textContent = "-";
+          mStress.textContent = "-";
+          mCorr.textContent = "-";
+          mDeflect.textContent = "-";
+          mLens.textContent = "-";
+          mG00.textContent = "-";
+          renderInvariants([]);
+          renderAttractors([]);
+          renderProbes([]);
+          scene.hasData = false;
+          drawScene();
+        });
+    }());
+  </script>
+</body>
+</html>

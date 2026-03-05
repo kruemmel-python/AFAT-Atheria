@@ -1,0 +1,33 @@
+﻿{
+    "started_at":  "2026-03-05T14:03:21.1718090+01:00",
+    "script_dir":  "D:\\Atheria-main\\Atheria_Relase",
+    "report_dir":  "D:\\Atheria-main\\Atheria_Relase\\daemon_runtime",
+    "report_dir_web":  "daemon_runtime",
+    "chronik_html":  "D:\\Atheria-main\\Atheria_Relase\\chronik.html",
+    "urls":  {
+                 "chronik":  "http://localhost:8000/chronik.html?reportDir=daemon_runtime"
+             },
+    "processes":  [
+                      {
+                          "name":  "daemon",
+                          "pid":  19220,
+                          "command":  "python atheria_daemon.py --report-dir D:\\Atheria-main\\Atheria_Relase\\daemon_runtime --market-profile finance --market-transport poll --market-poll-seconds 5 --audit-hours 1",
+                          "stdout":  "D:\\Atheria-main\\Atheria_Relase\\daemon_runtime\\_background\\logs\\daemon_20260305_140319.out.log",
+                          "stderr":  "D:\\Atheria-main\\Atheria_Relase\\daemon_runtime\\_background\\logs\\daemon_20260305_140319.err.log"
+                      },
+                      {
+                          "name":  "chronik",
+                          "pid":  10716,
+                          "command":  "python aion_chronik.py --report-dir D:\\Atheria-main\\Atheria_Relase\\daemon_runtime --follow --poll-seconds 5 --html-out D:\\Atheria-main\\Atheria_Relase\\chronik.html",
+                          "stdout":  "D:\\Atheria-main\\Atheria_Relase\\daemon_runtime\\_background\\logs\\chronik_20260305_140319.out.log",
+                          "stderr":  "D:\\Atheria-main\\Atheria_Relase\\daemon_runtime\\_background\\logs\\chronik_20260305_140319.err.log"
+                      },
+                      {
+                          "name":  "http",
+                          "pid":  26300,
+                          "command":  "python -m http.server 8000",
+                          "stdout":  "D:\\Atheria-main\\Atheria_Relase\\daemon_runtime\\_background\\logs\\http_20260305_140319.out.log",
+                          "stderr":  "D:\\Atheria-main\\Atheria_Relase\\daemon_runtime\\_background\\logs\\http_20260305_140319.err.log"
+                      }
+                  ]
+}

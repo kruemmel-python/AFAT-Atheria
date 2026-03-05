@@ -1,0 +1,6 @@
+2026-03-05 14:03:23,808 - INFO - AtheriaDaemon Report | reason=daemon_startup | path=D:\Atheria-main\Atheria_Relase\daemon_runtime\atheria_daemon_audit.jsonl | signature=60c85bb4781e
+2026-03-05 14:03:23,808 - INFO - AtheriaDaemon started | core=ATHERIA_CORE_13E7F6CC5C | transport=poll | reports=D:\Atheria-main\Atheria_Relase\daemon_runtime\atheria_daemon_audit.jsonl
+2026-03-05 14:03:23,824 - INFO - Dashboard | Dichte=0.000 | Aggregat=Eis | Rhythm=wake | T=26.04 | AutoSets=2 | Aion=0
+2026-03-05 15:03:44,065 - INFO - AtheriaDaemon Report | reason=scheduled_integrity_audit | path=D:\Atheria-main\Atheria_Relase\daemon_runtime\atheria_daemon_audit.jsonl | signature=f1c9293e2426
+2026-03-05 16:04:12,183 - INFO - AtheriaDaemon Report | reason=scheduled_integrity_audit | path=D:\Atheria-main\Atheria_Relase\daemon_runtime\atheria_daemon_audit.jsonl | signature=6ffd2447c80c
+2026-03-05 17:04:53,273 - INFO - AtheriaDaemon Report | reason=scheduled_integrity_audit | path=D:\Atheria-main\Atheria_Relase\daemon_runtime\atheria_daemon_audit.jsonl | signature=20f6e23a0cc7

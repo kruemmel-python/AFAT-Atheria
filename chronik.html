@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aion-Chronik</title>
+  <style>
+    :root {
+      --bg: #f6f1e8;
+      --paper: #fffdf8;
+      --ink: #18222d;
+      --muted: #66727f;
+      --line: #d8cdbd;
+      --ok: #2c7a4b;
+      --warn: #b7791f;
+      --bad: #a43636;
+      --reset: #0f6b78;
+      --accent: #d7b66f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      background:
+        radial-gradient(circle at top right, rgba(215,182,111,0.28), transparent 32%),
+        linear-gradient(180deg, #efe4cf, var(--bg));
+      color: var(--ink);
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding: 10px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,253,248,0.82);
+      box-shadow: 0 10px 24px rgba(24,34,45,0.05);
+    }
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(24,34,45,0.08);
+      color: var(--ink);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.76rem;
+      font-weight: 700;
+      background: rgba(24,34,45,0.03);
+    }
+    .nav-link.active {
+      color: #f8f2e7;
+      background: linear-gradient(135deg, rgba(24,34,45,0.95), rgba(15,107,120,0.92));
+      border-color: rgba(255,248,231,0.08);
+    }
+    .topbar-note {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .hero {
+      background: linear-gradient(135deg, rgba(24,34,45,0.95), rgba(15,107,120,0.92));
+      color: #f8f2e7;
+      padding: 28px;
+      border-radius: 18px;
+      box-shadow: 0 20px 40px rgba(24,34,45,0.18);
+      margin-bottom: 28px;
+    }
+    .hero-kicker {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.78rem;
+      opacity: 0.78;
+    }
+    h1, h2, h3 { margin: 0 0 10px; line-height: 1.15; }
+    h1 { font-size: clamp(1.7rem, 3vw, 2.7rem); }
+    h2 { font-size: 1.3rem; margin-bottom: 16px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .card, .entry {
+      background: rgba(255,253,248,0.92);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 10px 24px rgba(24,34,45,0.06);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+      background: rgba(24,34,45,0.08);
+    }
+    .badge.ok, .entry.ok .verify { color: var(--ok); }
+    .badge.warn, .entry.warn .verify { color: var(--warn); }
+    .badge.bad, .entry.bad .verify { color: var(--bad); }
+    .badge.reset, .entry.reset .verify { color: var(--reset); }
+    .entry-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .entry.ok { border-left: 5px solid var(--ok); }
+    .entry.warn { border-left: 5px solid var(--warn); }
+    .entry.bad { border-left: 5px solid var(--bad); }
+    .entry.reset { border-left: 5px solid var(--reset); }
+    .entry.muted { border-left: 5px solid var(--muted); }
+    .verify {
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+    .discovery {
+      color: #5f4312;
+      background: rgba(215,182,111,0.16);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .section-title {
+      margin: 26px 0 14px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="topbar" aria-label="Ansichten">
+      <div class="nav-links">
+        <a class="nav-link active" id="nav-chronik" href="chronik.html">Chronik</a>
+        <a class="nav-link" id="nav-finance" href="finance_dashboard.html">Atheria-Finance</a>
+      </div>
+      <div class="topbar-note" id="topbar-note">Verknuepft mit der Finance-Ansicht</div>
+    </nav>
+    <section class="hero"><div class="hero-kicker">Letzter Zustand</div><h1>Regelmaessiger Integritaetsblick: Temperatur 94.75, Ressourcen 4974.43, Trauma-Druck 0.00, Lineage-Profil survival, Marktprofil finance.</h1><p>Signatur verifiziert</p></section>
+    <div class="section-title">Inter-Core-Resonanz</div><div class="grid"><section class="card" id="chronik-resonance-card"><div class="badge reset" id="chronik-resonance-badge">Wartet</div><p id="chronik-resonance-statement">Noch keine gelernte Invariante im Resonanz-Journal gefunden.</p><p class="verify" id="chronik-resonance-meta">Erwartet unter core_audit/*_inter_core_resonance.jsonl</p><p class="verify" id="chronik-resonance-source"></p></section></div>
+    <div class="section-title">Tageszusammenfassung</div>
+    <div class="grid">
+      <section class="card"><div class="badge ok">2026-03-05</div><p>2026-03-05: 4 Eintraege | 1 Start | 0 Stop | 3 Audits | 0 Alerts | 0 Anomalien | max. Trauma 0.00</p></section>
+    </div>
+    <div class="section-title">Chronik</div>
+    <div class="entry-grid">
+      <article class="entry ok"><h3>2026-03-05 14:03:23</h3><p>ATHERIA erwachte und band sich an den Markt (Profil: finance, Transport: poll). Temperatur 25.00, Ressourcen 3.00.</p><p class="verify">Signatur verifiziert</p></article><article class="entry ok"><h3>2026-03-05 15:03:44</h3><p>Regelmaessiger Integritaetsblick: Temperatur 91.25, Ressourcen 5005.03, Trauma-Druck 0.00, Lineage-Profil survival, Marktprofil finance.</p><p class="verify">Signatur verifiziert</p></article><article class="entry ok"><h3>2026-03-05 16:04:12</h3><p>Regelmaessiger Integritaetsblick: Temperatur 106.01, Ressourcen 4966.73, Trauma-Druck 0.00, Lineage-Profil survival, Marktprofil finance.</p><p class="verify">Signatur verifiziert</p></article><article class="entry ok"><h3>2026-03-05 17:04:48</h3><p>Regelmaessiger Integritaetsblick: Temperatur 94.75, Ressourcen 4974.43, Trauma-Druck 0.00, Lineage-Profil survival, Marktprofil finance.</p><p class="verify">Signatur verifiziert</p></article>
+    </div>
+  </div>
+  
+  <script>
+    (function () {
+      var defaultReportDir = "D:/Atheria-main/Atheria_Relase/daemon_runtime";
+      var reportDir = resolveReportDir(defaultReportDir);
+      var navChronik = document.getElementById("nav-chronik");
+      var navFinance = document.getElementById("nav-finance");
+      var topbarNote = document.getElementById("topbar-note");
+      var resonanceBadge = document.getElementById("chronik-resonance-badge");
+      var resonanceStatement = document.getElementById("chronik-resonance-statement");
+      var resonanceMeta = document.getElementById("chronik-resonance-meta");
+      var resonanceSource = document.getElementById("chronik-resonance-source");
+
+      function resolveReportDir(fallback) {
+        var raw = "";
+        try {
+          raw = String(new URLSearchParams(window.location.search).get("reportDir") || "");
+        } catch (error) {
+          raw = "";
+        }
+        raw = raw.trim().replace(/\\/g, "/");
+        raw = raw.split("/").filter(function (part) {
+          return part && part !== "." && part !== "..";
+        }).join("/");
+        return raw || fallback;
+      }
+
+      function parseLatestJsonLine(text) {
+        var lines = String(text || "").split(/\r?\n/);
+        for (var index = lines.length - 1; index >= 0; index -= 1) {
+          var line = lines[index].trim();
+          if (!line) {
+            continue;
+          }
+          try {
+            return JSON.parse(line);
+          } catch (error) {
+            continue;
+          }
+        }
+        return null;
+      }
+
+      function setBadge(tone, text) {
+        if (!resonanceBadge) {
+          return;
+        }
+        resonanceBadge.className = "badge " + tone;
+        resonanceBadge.textContent = text;
+      }
+
+      function applyViewContext(activeReportDir) {
+        var suffix = activeReportDir === defaultReportDir
+          ? ""
+          : ("?reportDir=" + encodeURIComponent(activeReportDir));
+        if (navChronik) {
+          navChronik.href = "chronik.html" + suffix;
+        }
+        if (navFinance) {
+          navFinance.href = "finance_dashboard.html" + suffix;
+        }
+        if (topbarNote) {
+          if (activeReportDir === defaultReportDir) {
+            topbarNote.textContent = "Verknuepft mit der Finance-Ansicht | Report-Root " + activeReportDir;
+          } else {
+            topbarNote.textContent =
+              "Statische Chronik aus " + defaultReportDir + " | Resonanz-Overlay liest " + activeReportDir;
+          }
+        }
+      }
+
+      function setResonanceFallback(message, activeReportDir) {
+        setBadge("reset", "Wartet");
+        if (resonanceStatement) {
+          resonanceStatement.textContent = message;
+        }
+        if (resonanceMeta) {
+          resonanceMeta.textContent =
+            "Erwartet unter " + activeReportDir + "/core_audit/<core_id>_inter_core_resonance.jsonl";
+        }
+        if (resonanceSource) {
+          resonanceSource.textContent = "";
+        }
+      }
+
+      function updateResonance(record, resonanceFile) {
+        if (!record || !record.invariant) {
+          setResonanceFallback("Resonanz-Datei gefunden, aber noch ohne auswertbare Invariante.", reportDir);
+          return;
+        }
+        var invariant = record.invariant || {};
+        var confidence = Number(invariant.confidence || 0);
+        var tone = confidence >= 0.75 ? "ok" : "warn";
+        var triggerAsset = String(invariant.trigger_asset || "MARKET");
+        var targetAsset = String(invariant.target_asset || "BTC");
+        var lagMinutes = Number(invariant.lag_minutes || 0);
+        var effectSize = Number(invariant.mean_effect_size || 0);
+        var samples = Math.round(Number(invariant.samples || 0));
+        setBadge(tone, "Invariante");
+        if (resonanceStatement) {
+          resonanceStatement.textContent = String(
+            invariant.statement ||
+            ("Wenn " + triggerAsset + " triggert, reagiert " + targetAsset + " nach " + lagMinutes + " Minuten.")
+          );
+        }
+        if (resonanceMeta) {
+          resonanceMeta.textContent =
+            "Confidence " + Math.round(confidence * 100) + "%, Effekt " + effectSize.toFixed(3) +
+            ", Samples " + samples + ", Lag " + lagMinutes.toFixed(0) + " min.";
+        }
+        if (resonanceSource) {
+          resonanceSource.textContent = "Quelle: " + resonanceFile;
+        }
+      }
+
+      function loadResonance(activeReportDir) {
+        var auditFile = activeReportDir + "/atheria_daemon_audit.jsonl";
+        fetch(auditFile, { cache: "no-store" })
+          .then(function (response) {
+            if (!response.ok) {
+              throw new Error("HTTP " + response.status);
+            }
+            return response.text();
+          })
+          .then(function (text) {
+            var entry = parseLatestJsonLine(text);
+            var coreId = String(entry && entry.core_id || "").trim().toLowerCase();
+            if (!coreId) {
+              setResonanceFallback(
+                "Kein `core_id` im Daemon-Report gefunden. Resonanz-Journal kann nicht aufgeloest werden.",
+                activeReportDir
+              );
+              return;
+            }
+            var resonanceFile = activeReportDir + "/core_audit/" + coreId + "_inter_core_resonance.jsonl";
+            return fetch(resonanceFile, { cache: "no-store" })
+              .then(function (resonanceResponse) {
+                if (!resonanceResponse.ok) {
+                  throw new Error("HTTP " + resonanceResponse.status);
+                }
+                return resonanceResponse.text();
+              })
+              .then(function (resonanceText) {
+                updateResonance(parseLatestJsonLine(resonanceText), resonanceFile);
+              });
+          })
+          .catch(function () {
+            setResonanceFallback(
+              "Resonanz-Overlay konnte fuer den gewaehlten Report-Root nicht geladen werden.",
+              activeReportDir
+            );
+          });
+      }
+
+      applyViewContext(reportDir);
+      loadResonance(reportDir);
+    }());
+  </script>
+
+</body>
+</html>

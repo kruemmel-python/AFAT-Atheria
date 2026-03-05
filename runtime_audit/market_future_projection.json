@@ -1,0 +1,255 @@
+{
+  "question": "Kann man die Zukunft vorhersagen, wenn man die Landschaft der Marktinformationen kartieren kann?",
+  "answer": "Ja, aber nur probabilistisch. Die kartierte Informationslandschaft erhoeht die Vorhersagbarkeit, liefert jedoch keine deterministische Zukunft.",
+  "answer_strength": 0.263083,
+  "created_at": 1772726656.0,
+  "landscape": {
+    "points": [
+      {
+        "event_id": "daemon_startup::0000",
+        "timestamp": 1772715803.745473,
+        "signal": 0.0,
+        "coords": [
+          0.999984,
+          -0.005663,
+          0.000345
+        ],
+        "density": 0.747085,
+        "regime": "calm",
+        "mean_return": 0.0,
+        "mean_volatility": 0.0,
+        "mean_imbalance": 0.0
+      },
+      {
+        "event_id": "scheduled_integrity_audit::0001",
+        "timestamp": 1772719424.065788,
+        "signal": 0.0,
+        "coords": [
+          -0.319199,
+          0.131169,
+          0.01272
+        ],
+        "density": 1.740674,
+        "regime": "calm",
+        "mean_return": 0.0,
+        "mean_volatility": 0.0,
+        "mean_imbalance": 0.0
+      },
+      {
+        "event_id": "scheduled_integrity_audit::0002",
+        "timestamp": 1772723052.181268,
+        "signal": 0.0,
+        "coords": [
+          -0.366996,
+          -0.153179,
+          0.007216
+        ],
+        "density": 1.618266,
+        "regime": "calm",
+        "mean_return": 0.0,
+        "mean_volatility": 0.0,
+        "mean_imbalance": 0.0
+      },
+      {
+        "event_id": "scheduled_integrity_audit::0003",
+        "timestamp": 1772726688.132733,
+        "signal": 0.0,
+        "coords": [
+          -0.313789,
+          0.027674,
+          -0.02028
+        ],
+        "density": 1.859159,
+        "regime": "calm",
+        "mean_return": 0.0,
+        "mean_volatility": 0.0,
+        "mean_imbalance": 0.0
+      }
+    ],
+    "regimes": [
+      {
+        "name": "calm",
+        "count": 4,
+        "mean_signal": 0.0
+      },
+      {
+        "name": "transition",
+        "count": 0,
+        "mean_signal": 0.0
+      },
+      {
+        "name": "stress",
+        "count": 0,
+        "mean_signal": 0.0
+      }
+    ],
+    "topology": {
+      "latent_dims": 3,
+      "explained_variance": 1.0,
+      "regime_stability": 1.0,
+      "transition_entropy": -0.0,
+      "q33_signal": 0.0,
+      "q66_signal": 0.0
+    }
+  },
+  "forecast": {
+    "horizon_steps": 12,
+    "step_seconds": 300.0,
+    "series": [
+      {
+        "step": 1,
+        "timestamp_est": 1772726956.0,
+        "signal_mean": 0.0,
+        "signal_lo": -0.1066,
+        "signal_hi": 0.1066,
+        "confidence": 0.806945
+      },
+      {
+        "step": 2,
+        "timestamp_est": 1772727256.0,
+        "signal_mean": 0.0,
+        "signal_lo": -0.130376,
+        "signal_hi": 0.130376,
+        "confidence": 0.769248
+      },
+      {
+        "step": 3,
+        "timestamp_est": 1772727556.0,
+        "signal_mean": 0.0,
+        "signal_lo": -0.14862,
+        "signal_hi": 0.14862,
+        "confidence": 0.741521
+      },
+      {
+        "step": 4,
+        "timestamp_est": 1772727856.0,
+        "signal_mean": 0.0,
+        "signal_lo": -0.164,
+        "signal_hi": 0.164,
+        "confidence": 0.718924
+      },
+      {
+        "step": 5,
+        "timestamp_est": 1772728156.0,
+        "signal_mean": 0.0,
+        "signal_lo": -0.17755,
+        "signal_hi": 0.17755,
+        "confidence": 0.699586
+      },
+      {
+        "step": 6,
+        "timestamp_est": 1772728456.0,
+        "signal_mean": 0.0,
+        "signal_lo": -0.189801,
+        "signal_hi": 0.189801,
+        "confidence": 0.682552
+      },
+      {
+        "step": 7,
+        "timestamp_est": 1772728756.0,
+        "signal_mean": 0.0,
+        "signal_lo": -0.201066,
+        "signal_hi": 0.201066,
+        "confidence": 0.667254
+      },
+      {
+        "step": 8,
+        "timestamp_est": 1772729056.0,
+        "signal_mean": 0.0,
+        "signal_lo": -0.211552,
+        "signal_hi": 0.211552,
+        "confidence": 0.653323
+      },
+      {
+        "step": 9,
+        "timestamp_est": 1772729356.0,
+        "signal_mean": 0.0,
+        "signal_lo": -0.2214,
+        "signal_hi": 0.2214,
+        "confidence": 0.640504
+      },
+      {
+        "step": 10,
+        "timestamp_est": 1772729656.0,
+        "signal_mean": 0.0,
+        "signal_lo": -0.230715,
+        "signal_hi": 0.230715,
+        "confidence": 0.628611
+      },
+      {
+        "step": 11,
+        "timestamp_est": 1772729956.0,
+        "signal_mean": 0.0,
+        "signal_lo": -0.239574,
+        "signal_hi": 0.239574,
+        "confidence": 0.617504
+      },
+      {
+        "step": 12,
+        "timestamp_est": 1772730256.0,
+        "signal_mean": 0.0,
+        "signal_lo": -0.248039,
+        "signal_hi": 0.248039,
+        "confidence": 0.607075
+      }
+    ],
+    "scenario_probabilities": {
+      "stress_up": 0.421383,
+      "sideways": 0.157233,
+      "stress_down": 0.421383
+    },
+    "drivers": [
+      {
+        "feature": "f_structural_tension",
+        "weight": 0.442306
+      },
+      {
+        "feature": "f_entropic_index",
+        "weight": 0.393495
+      },
+      {
+        "feature": "f_system_temperature",
+        "weight": 0.305937
+      },
+      {
+        "feature": "f_resource_pool_log",
+        "weight": 0.296979
+      },
+      {
+        "feature": "f_guardian_score",
+        "weight": 0.047959
+      },
+      {
+        "feature": "f_trauma_pressure",
+        "weight": 0.0
+      },
+      {
+        "feature": "f_signal_strength",
+        "weight": 0.0
+      },
+      {
+        "feature": "f_mean_return",
+        "weight": 0.0
+      },
+      {
+        "feature": "f_return_dispersion",
+        "weight": 0.0
+      },
+      {
+        "feature": "f_mean_volatility",
+        "weight": 0.0
+      }
+    ]
+  },
+  "quality": {
+    "sample_count": 4,
+    "r2_one_step": 0.0,
+    "mae_one_step": 0.0,
+    "rmse_one_step": 0.0,
+    "residual_std": 0.035,
+    "regime_stability": 1.0,
+    "predictability_index": 0.263083,
+    "proof_verdict": "Weak",
+    "statement": "Zu wenige Events fuer robustes Training. Das Modul liefert nur eine konservative Baseline-Projektion."
+  }
+}
